@@ -48,6 +48,30 @@ class ReactiveAdaptationManager(Strategy):
 
 
     def analyze(self):
+        if("next_operation" not in knowledge.analysis_data 
+            or knowledge.analysis_data["next_operation"] == "changeLBWeights"):
+            knowledge.analysis_data["next_operation"] = "addInstances"
+        else:    
+            dic = assignWeight()        
+            self.knowledge.analysis_data["instances_number"] = len(dic)
+            self.knowledge.analysis_data["newWeights"] = dic
+        return True
+        
+
+    def plan(self):
+        if(self.knowledge.analysis_data["next_operation"] == "addInstances"):
+            self.knowledge.plan_data["operation"] = "addInstances"
+            self.knowledge.plan_data["serviceImplementationName"] = "ordering-service"
+            self.knowledge.plan_data["numberOfInstances"] = 1
+            knowledge.analysis_data.clear()
+            knowledge.analysis_data["next_operation"] = "changeLBWeights"
+        else:
+            self.knowledge.plan_data["operation"] = knowledge.analysis_data["next_operation"]
+            self.knowledge.plan_data["serviceId"] = "ORDERING-SERVICE"
+            self.knowledge.plan_data["newWeights"] = self.knowledge.analysis_data["newWeights"]
+            knowledge.analysis_data.clear()
+            knowledge.analysis_data["next_operation"] = "addInstances"
+
         
 
 
